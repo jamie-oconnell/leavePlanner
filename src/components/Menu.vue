@@ -46,7 +46,7 @@
             <strong>Sign up</strong>
           </a>
           <a class="button is-light">
-            Log in
+            Log in 
           </a>
         </div>
       </div>

@@ -45,57 +45,78 @@ export default {
     },
     dateContinued(itemIndex) {
       if (this.$store.state.mouseCurrentlyDown == true) {
-
         if (itemIndex != this.selectedDates[this.selectedDates.length - 1]) {
-          
-          if(itemIndex - this.selectedDates[this.selectedDates.length -1] > 1){
-              const temp = []
-              for (var i = this.selectedDates[0]; i < itemIndex; i++){
-                temp.push(i)
-              }
-              this.selectedDates = temp
+          if (
+            itemIndex - this.selectedDates[this.selectedDates.length - 1] >
+            1
+          ) {
+            const temp = [];
+            for (var i = this.selectedDates[0]; i < itemIndex; i++) {
+              temp.push(i);
+            }
+            this.selectedDates = temp;
           }
-          if(itemIndex - this.selectedDates[this.selectedDates.length -1] < -1){
-              const temp = []
-              for (var i = this.selectedDates[0]; i> itemIndex ;i--){
-                temp.push(i)
-              }
-              this.selectedDates = temp
+          if (
+            itemIndex - this.selectedDates[this.selectedDates.length - 1] <
+            -1
+          ) {
+            const temp = [];
+            for (var i = this.selectedDates[0]; i > itemIndex; i--) {
+              temp.push(i);
+            }
+            this.selectedDates = temp;
           }
-          
-          if(itemIndex == this.selectedDates[this.selectedDates.length -2]){
-              this.selectedDates.pop()
-              this.selectedDates.pop()
+
+          if (itemIndex == this.selectedDates[this.selectedDates.length - 2]) {
+            this.selectedDates.pop();
+            this.selectedDates.pop();
           }
-          
+
           this.selectedDates.push(itemIndex);
         }
-
       }
     },
     mouseReleased() {
-      this.$store.state.mouseCurrentlyDown = !this.$store.state.mouseCurrentlyDown;
-      const dates = [this.selectedDates[0] +1, this.selectedDates[this.selectedDates.length -1] + 1]
-      this.$store.state.leaveStartDate = format(new Date(this.currentYear,this.selectedMonth,Math.min(...dates)), "YYYY-MM-DD")
-      this.$store.state.leaveEndDate = format(new Date(this.currentYear,this.selectedMonth,Math.max(...dates)), "YYYY-MM-DD")
+      this.$store.state.mouseCurrentlyDown = !this.$store.state
+        .mouseCurrentlyDown;
+      const dates = [
+        this.selectedDates[0] + 1,
+        this.selectedDates[this.selectedDates.length - 1] + 1
+      ];
+      this.$store.state.leaveStartDate = format(
+        new Date(this.currentYear, this.selectedMonth, Math.min(...dates)),
+        "YYYY-MM-DD"
+      );
+      this.$store.state.leaveEndDate = format(
+        new Date(this.currentYear, this.selectedMonth, Math.max(...dates)),
+        "YYYY-MM-DD"
+      );
       this.$store.state.leaveModalActive = true;
       this.selectedDates = [];
-
+    },
+    updateTable() {
+      this.tableData = []
+      const days = [];
+      const monthStartDate = startOfMonth(
+        new Date(this.currentYear, this.selectedMonth)
+      );
+      const monthEndDate = endOfMonth(
+        new Date(this.currentYear, this.selectedMonth)
+      );
+      const monthDays = eachDay(monthStartDate, monthEndDate);
+      monthDays.forEach(function(day) {
+        days.push(format(`${day}`, "D"));
+      });
+      this.tableData.push(...days);
     }
   },
   created() {
-    const days = [];
-    const monthStartDate = startOfMonth(
-      new Date(this.currentYear, this.selectedMonth)
-    );
-    const monthEndDate = endOfMonth(
-      new Date(this.currentYear, this.selectedMonth)
-    );
-    const monthDays = eachDay(monthStartDate, monthEndDate);
-    monthDays.forEach(function(day) {
-      days.push(format(`${day}`, "D"));
-    });
-    this.tableData.push(...days);
+    this.updateTable()
+  },
+  watch: {
+    'selectedMonth'(){
+      this.updateTable()
+    }
   },
   props: ["currentYear", "selectedMonth"]
 };
@@ -127,6 +148,5 @@ export default {
   cursor: pointer;
   background: rgba(150, 150, 150, 0.1);
 }
-
 </style>
 

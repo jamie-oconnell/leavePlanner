@@ -6,45 +6,66 @@
       <table style="margin: 0 auto;">
         <thead>
           <tr>
-              <td></td>
-              <td>
-                  <div class="monthHeading">
-                  <span id="selectedMonth">{{monthToString()}} {{this.currentYear}}</span>
+            <td></td>
+            <td>
+              <div class="monthHeading">
+                <a @click="changeMonth(-1)">
+                  <b-icon icon="arrow-left-bold-circle-outline"></b-icon>
 
-                  </div>
-              </td>
+                </a>
+                <span
+                  style="flex: 1; text-align: center;"
+                  id="selectedMonth"
+                >{{monthToString()}} {{this.currentYear}}</span>
+                <a @click="changeMonth(1)">
+                  <b-icon icon="arrow-right-bold-circle-outline"></b-icon>
+
+                </a>
+
+              </div>
+            </td>
           </tr>
           <tr>
             <td></td>
             <td style="padding-bottom: 10px;">
-                <table>
-                    <thead>
-                        <tr >
-                            <th class="day-heading" v-for="(day, index) in tableData" :key="index">
-                                <a href="">{{day}}</a>
-                            </th>
-                        </tr>
-                    </thead>
-                </table>
+              <table>
+                <thead>
+                  <tr>
+                    <th
+                      class="day-heading"
+                      v-for="(day, index) in tableData"
+                      :key="index"
+                    >
+                      <a href="">{{day}}</a>
+                    </th>
+                  </tr>
+                </thead>
+              </table>
             </td>
           </tr>
         </thead>
         <tbody>
-          <tr :data-userid="person.id" :data-username='person.name' v-for="(person, index) in staff"
-              :key="index"
-            >
+          <tr
+            :data-userid="person.id"
+            :data-username='person.name'
+            v-for="(person, index) in staff"
+            :key="index"
+          >
             <th class="person">
-              
+
               <div>
-                  <span class="staffName">
-                      <a>{{person.name}}</a>
+                <span class="staffName">
+                  <a>{{person.name}}</a>
                 </span>
-                </div>
-                
+              </div>
+
               <span class="staffTitle">{{person.title}}</span>
             </th>
             <td>
-                <MonthDays :currentYear="currentYear" :selectedMonth="selectedMonth"/>
+              <MonthDays
+                :currentYear="currentYear"
+                :selectedMonth="selectedMonth"
+              />
             </td>
           </tr>
         </tbody>
@@ -58,8 +79,8 @@
 
 <script>
 import Menu from "@/components/Menu";
-import MonthDays from '@/components/MonthDays'
-import AddLeaveModal from '@/components/AddLeaveModal'
+import MonthDays from "@/components/MonthDays";
+import AddLeaveModal from "@/components/AddLeaveModal";
 import db from "@/firebaseInit";
 import {
   getDaysInMonth,
@@ -68,48 +89,59 @@ import {
   eachDay,
   format,
   getYear,
-addDays,
-getMonth
+  addDays,
+  getMonth
 } from "date-fns";
 export default {
   data() {
     return {
       tableData: [],
-      staff:[],
+      staff: [],
       currentYear: getYear(new Date()),
-      selectedMonth: getMonth(new Date(2018,1))
+      month: 1,
+      selectedMonth: getMonth(new Date())
     };
   },
   created() {
-    // Create day headings e.g sat, sun ,mon
-    const days = [];
-    const monthStartDate = startOfMonth(new Date(this.currentYear, this.selectedMonth));
-    const monthEndDate = endOfMonth(new Date(this.currentYear, this.selectedMonth));
-    const monthDays = eachDay(monthStartDate, monthEndDate);
-    monthDays.forEach(function(day) {
-      days.push(format(`${day}`, "dd"));
-    });
-    this.tableData.push(...days);
-    
+    this.updateTableHeadings()
     db.collection("staff")
       .get()
       .then(querySnapshot => {
         querySnapshot.forEach(doc => {
           const data = {
-              name: doc.data().name,
-              level: doc.data().level,
-              title: doc.data().title,
-              id: doc.id
+            name: doc.data().name,
+            level: doc.data().level,
+            title: doc.data().title,
+            id: doc.id
           };
           this.staff.push(data);
-
         });
       });
-      
   },
   methods: {
-    monthToString: function (){
-      return format(new Date(this.currentYear, this.selectedMonth), 'MMMM')
+    monthToString: function() {
+      return format(new Date(this.currentYear, this.selectedMonth), "MMMM");
+    },
+    changeMonth(value) {
+      this.selectedMonth += value;
+      this.updateTableHeadings()
+    },
+    updateTableHeadings() {
+      // Create day headings e.g sat, sun ,mon
+      this.tableData = [];
+      const days = [];
+
+      const monthStartDate = startOfMonth(
+        new Date(this.currentYear, this.selectedMonth)
+      );
+      const monthEndDate = endOfMonth(
+        new Date(this.currentYear, this.selectedMonth)
+      );
+      const monthDays = eachDay(monthStartDate, monthEndDate);
+      monthDays.forEach(day => {
+        days.push(format(`${day}`, "dd"));
+      });
+      this.tableData.push(...days);
     }
   },
   components: {
@@ -132,15 +164,15 @@ td {
   overflow: hidden;
 }
 
-th.person{
-    font-size: 14px;
-    width: 200px;
-    font-weight: 500;
-    padding-bottom: 15px;
+th.person {
+  font-size: 14px;
+  width: 200px;
+  font-weight: 500;
+  padding-bottom: 15px;
 }
 
-.staffTitle{
-    color: #747478;
+.staffTitle {
+  color: #747478;
 }
 
 .table .staffName {
@@ -149,20 +181,20 @@ th.person{
   overflow: hidden;
 }
 
-.day-heading{
+.day-heading {
   width: 30px !important;
   min-width: 30px !important;
   max-width: 30px !important;
   text-align: center;
 }
 
-.monthHeading{
-    display: flex;
-    justify-content: center;
-    padding-bottom: 10px;
+.monthHeading {
+  display: flex;
+  justify-content: center;
+  padding-bottom: 10px;
 }
 
-#selectedMonth{
-    font-size: 18px;
+#selectedMonth {
+  font-size: 18px;
 }
 </style>

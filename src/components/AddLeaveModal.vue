@@ -23,6 +23,7 @@
             <label class="label">Start Date</label>
             <div class="control">
               <input
+                id="startDate"
                 v-model="leaveStartDate"
                 class="input"
                 type="date"
@@ -65,7 +66,7 @@
 </template>
 
 <script>
-import bulmaCalendar from "bulma-calendar";
+import bulmaCalendar from "bulma-calendar/dist/js/bulma-calendar.min.js";
 export default {
   data() {
     return {
@@ -97,9 +98,10 @@ export default {
         }
     }
   },
-  created() {
+  mounted() {
     // // Initialize all input of date type.
-    // const calendars = bulmaCalendar.attach('[type="date"]');
+    // const calendars = bulmaCalendar.attach('#startDate');
+    // console.log(calendars)
     // console.log(calendars);
 
     // // Loop on each calendar initialized
