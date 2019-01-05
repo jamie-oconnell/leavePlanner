@@ -6,8 +6,8 @@ Vue.use(Vuex);
 export const store = new Vuex.Store({
     state: {
         leaveModalActive: false,
-        leaveStartDate : null,
-        leaveEndDate: null,
+        leaveStartDate : new Date(),
+        leaveEndDate: new Date(),
         mouseCurrentlyDown : false
     }
 })

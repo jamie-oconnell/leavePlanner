@@ -28,6 +28,7 @@ import {
   addDays,
   getYear
 } from "date-fns";
+import db from "@/firebaseInit";
 export default {
   data() {
     return {
@@ -108,7 +109,8 @@ export default {
         days.push(format(`${day}`, "D"));
       });
       this.tableData.push(...days);
-    }
+    },
+    
   },
   created() {
     this.updateTable()

@@ -125,6 +125,7 @@ export default {
     changeMonth(value) {
       this.selectedMonth += value;
       this.updateTableHeadings()
+      this.getLeaveData()
     },
     updateTableHeadings() {
       // Create day headings e.g sat, sun ,mon
@@ -142,6 +143,21 @@ export default {
         days.push(format(`${day}`, "dd"));
       });
       this.tableData.push(...days);
+    },
+    getLeaveData(){
+      db.collection("leave").where("month", "==", this.selectedMonth)
+      .get()
+      .then(querySnapshot => {
+        querySnapshot.forEach(doc => {
+          const data = {
+            startDate: doc.data().startDate,
+            endDate: doc.data().endDate,
+            duration: doc.data().duration,
+            id: doc.id
+          };
+          console.log(data);
+        });
+      });
     }
   },
   components: {

@@ -20,28 +20,31 @@
             class="field"
             style="flex : 1; margin-right: 5px;"
           >
-            <label class="label">Start Date</label>
-            <div class="control">
-              <input
-                id="startDate"
+            <b-field label="Start Date">
+              <b-datepicker
                 v-model="leaveStartDate"
-                class="input"
-                type="date"
+                icon="calendar-today"
+                :min-date="minDate"
+                :max-date="maxDate"
               >
-            </div>
+              </b-datepicker>
+            </b-field>
           </div>
           <div
             class="field"
             style="flex: 1; margin-left: 5px;"
           >
-            <label class="label">End Date</label>
-            <div class="control">
-              <input
+            <b-field label="End Date">
+              <b-datepicker
                 v-model="leaveEndDate"
-                class="input"
-                type="date"
+                icon="calendar-today"
+                position="is-bottom-left"
+                :min-date="minDate"
+                :max-date="maxDate"
               >
-            </div>
+              </b-datepicker>
+            </b-field>
+
           </div>
         </div>
 
@@ -66,51 +69,39 @@
 </template>
 
 <script>
-import bulmaCalendar from "bulma-calendar/dist/js/bulma-calendar.min.js";
+import { startOfYear, endOfYear } from "date-fns";
 export default {
   data() {
     return {
+      minDate: startOfYear(new Date()),
+      maxDate: endOfYear(new Date())
     };
   },
   computed: {
     currentModalState: {
-        get() {
-            return this.$store.state.leaveModalActive
-        },
-        set(value) {
-            this.$store.state.leaveModalActive = value
-        }
+      get() {
+        return this.$store.state.leaveModalActive;
+      },
+      set(value) {
+        this.$store.state.leaveModalActive = value;
+      }
     },
     leaveStartDate: {
-        get(){
-            return this.$store.state.leaveStartDate
-        },
-        set(value) {
-            this.$store.state.leaveStartDate = value
-        }
+      get() {
+        return new Date(this.$store.state.leaveStartDate);
+      },
+      set(value) {
+        this.$store.state.leaveStartDate = value;
+      }
     },
     leaveEndDate: {
-        get(){
-            return this.$store.state.leaveEndDate
-        },
-        set(value) {
-            this.$store.state.leaveEndDate = value
-        }
+      get() {
+        return new Date(this.$store.state.leaveEndDate);
+      },
+      set(value) {
+        this.$store.state.leaveEndDate = value;
+      }
     }
-  },
-  mounted() {
-    // // Initialize all input of date type.
-    // const calendars = bulmaCalendar.attach('#startDate');
-    // console.log(calendars)
-    // console.log(calendars);
-
-    // // Loop on each calendar initialized
-    // calendars.forEach(calendar => {
-    //   // Add listener to date:selected event
-    //   calendar.on("date:selected", date => {
-    //     console.log(date);
-    //   });
-    // });
   }
 };
 </script>
