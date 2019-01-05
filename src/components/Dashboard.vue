@@ -33,7 +33,7 @@
                   <tr>
                     <th
                       class="day-heading"
-                      v-for="(day, index) in tableData"
+                      v-for="(day, index) in headingData"
                       :key="index"
                     >
                       <a href="">{{day}}</a>
@@ -78,6 +78,7 @@
 </template>
 
 <script>
+import Vue from 'Vue'
 import Menu from "@/components/Menu";
 import MonthDays from "@/components/MonthDays";
 import AddLeaveModal from "@/components/AddLeaveModal";
@@ -95,7 +96,7 @@ import {
 export default {
   data() {
     return {
-      tableData: [],
+      headingData: [],
       staff: [],
       currentYear: getYear(new Date()),
       month: 1,
@@ -126,10 +127,11 @@ export default {
       this.selectedMonth += value;
       this.updateTableHeadings()
       this.getLeaveData()
+      this.getPublicHolidays()
     },
     updateTableHeadings() {
       // Create day headings e.g sat, sun ,mon
-      this.tableData = [];
+      this.headingData = [];
       const days = [];
 
       const monthStartDate = startOfMonth(
@@ -142,7 +144,7 @@ export default {
       monthDays.forEach(day => {
         days.push(format(`${day}`, "dd"));
       });
-      this.tableData.push(...days);
+      this.headingData.push(...days);
     },
     getLeaveData(){
       db.collection("leave").where("month", "==", this.selectedMonth)
@@ -156,6 +158,24 @@ export default {
             id: doc.id
           };
           console.log(data);
+        });
+      });
+    },
+    getPublicHolidays(){
+      db.collection("publicHolidays").where("month", "==", this.selectedMonth)
+      .get()
+      .then(querySnapshot => {
+        querySnapshot.forEach(doc => {
+          const day = format(doc.data().date, "D") - 1
+          const data = {
+            name: doc.data().name,
+            date: doc.data().date,
+            day: format(doc.data().date, "D") - 1,
+            id: doc.id
+          };
+          console.log(data);
+          Vue.set(this.$store.state.tableData[day], 'publicHoliday', true)
+          this.$store.state.publicHolidays.push(data)
         });
       });
     }

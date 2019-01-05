@@ -8,6 +8,8 @@ export const store = new Vuex.Store({
         leaveModalActive: false,
         leaveStartDate : new Date(),
         leaveEndDate: new Date(),
-        mouseCurrentlyDown : false
+        mouseCurrentlyDown : false,
+        publicHolidays: [],
+        tableData: []
     }
 })

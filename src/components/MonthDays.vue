@@ -3,7 +3,7 @@
     <tbody>
       <tr>
         <td
-          v-bind:class="{'has-background-primary' : isActive == selectedDates.includes(index), 'has-text-white' : isActive == selectedDates.includes(index)}"
+          v-bind:class="{'has-background-primary has-text-white' : selectedDates.includes(index), 'has-background-danger' : tableData[index].publicHoliday}"
           @mousedown="dateClicked(index)"
           @mouseover="dateContinued(index)"
           @mouseup="mouseReleased"
@@ -11,7 +11,7 @@
           v-for="(day, index) in tableData"
           :key="index"
         >
-          <span>{{day}}</span>
+          <span>{{day.number}}</span>
         </td>
       </tr>
     </tbody>
@@ -29,13 +29,12 @@ import {
   getYear
 } from "date-fns";
 import db from "@/firebaseInit";
+import {mapState} from 'vuex'
 export default {
   data() {
     return {
-      tableData: [],
       selectedDate: false,
       selectedDates: [],
-      isActive: true,
       selectedDateIndex: null
     };
   },
@@ -96,7 +95,7 @@ export default {
       this.selectedDates = [];
     },
     updateTable() {
-      this.tableData = []
+      this.$store.state.tableData = []
       const days = [];
       const monthStartDate = startOfMonth(
         new Date(this.currentYear, this.selectedMonth)
@@ -106,9 +105,9 @@ export default {
       );
       const monthDays = eachDay(monthStartDate, monthEndDate);
       monthDays.forEach(function(day) {
-        days.push(format(`${day}`, "D"));
+        days.push({number: format(`${day}`, "D")});
       });
-      this.tableData.push(...days);
+      this.$store.state.tableData.push(...days);
     },
     
   },
@@ -120,6 +119,8 @@ export default {
       this.updateTable()
     }
   },
+  computed: 
+    mapState(['tableData']),
   props: ["currentYear", "selectedMonth"]
 };
 </script>
