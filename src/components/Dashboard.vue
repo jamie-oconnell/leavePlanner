@@ -78,7 +78,7 @@
 </template>
 
 <script>
-import Vue from 'Vue'
+import Vue from "Vue";
 import Menu from "@/components/Menu";
 import MonthDays from "@/components/MonthDays";
 import AddLeaveModal from "@/components/AddLeaveModal";
@@ -104,7 +104,8 @@ export default {
     };
   },
   created() {
-    this.updateTableHeadings()
+    this.updateTableHeadings();
+    this.getPublicHolidays();
     db.collection("staff")
       .get()
       .then(querySnapshot => {
@@ -124,10 +125,16 @@ export default {
       return format(new Date(this.currentYear, this.selectedMonth), "MMMM");
     },
     changeMonth(value) {
-      this.selectedMonth += value;
-      this.updateTableHeadings()
-      this.getLeaveData()
-      this.getPublicHolidays()
+        this.selectedMonth += value;
+      if (this.selectedMonth < 0) {
+        this.selectedMonth = 11;
+      }
+      if (this.selectedMonth > 11) {
+        this.selectedMonth = 0;
+      } 
+      this.updateTableHeadings();
+      this.getLeaveData();
+      this.getPublicHolidays();
     },
     updateTableHeadings() {
       // Create day headings e.g sat, sun ,mon
@@ -146,38 +153,39 @@ export default {
       });
       this.headingData.push(...days);
     },
-    getLeaveData(){
-      db.collection("leave").where("month", "==", this.selectedMonth)
-      .get()
-      .then(querySnapshot => {
-        querySnapshot.forEach(doc => {
-          const data = {
-            startDate: doc.data().startDate,
-            endDate: doc.data().endDate,
-            duration: doc.data().duration,
-            id: doc.id
-          };
-          console.log(data);
+    getLeaveData() {
+      db.collection("leave")
+        .get()
+        .then(querySnapshot => {
+          querySnapshot.forEach(doc => {
+            const data = {
+              startDate: doc.data().startDate,
+              endDate: doc.data().endDate,
+              duration: doc.data().duration,
+              id: doc.id
+            };
+            console.log(data);
+          });
         });
-      });
     },
-    getPublicHolidays(){
-      db.collection("publicHolidays").where("month", "==", this.selectedMonth)
-      .get()
-      .then(querySnapshot => {
-        querySnapshot.forEach(doc => {
-          const day = format(doc.data().date, "D") - 1
-          const data = {
-            name: doc.data().name,
-            date: doc.data().date,
-            day: format(doc.data().date, "D") - 1,
-            id: doc.id
-          };
-          console.log(data);
-          Vue.set(this.$store.state.tableData[day], 'publicHoliday', true)
-          this.$store.state.publicHolidays.push(data)
+    getPublicHolidays() {
+      db.collection("publicHolidays")
+      .where("month", "==", this.selectedMonth)
+        .get()
+        .then(querySnapshot => {
+          querySnapshot.forEach(doc => {
+            const day = format(doc.data().date, "D") - 1;
+            const data = {
+              name: doc.data().name,
+              date: doc.data().date,
+              day: format(doc.data().date, "D") - 1,
+              id: doc.id
+            };
+            console.log(data);
+            Vue.set(this.$store.state.tableData[day], "publicHoliday", true);
+            this.$store.state.publicHolidays.push(data);
+          });
         });
-      });
     }
   },
   components: {

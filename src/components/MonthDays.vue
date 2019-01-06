@@ -3,7 +3,7 @@
     <tbody>
       <tr>
         <td
-          v-bind:class="{'has-background-primary has-text-white' : selectedDates.includes(index), 'has-background-danger' : tableData[index].publicHoliday}"
+          v-bind:class="{'has-background-primary has-text-white' : selectedDates.includes(index), 'has-background-grey-lighter' : tableData[index].publicHoliday}"
           @mousedown="dateClicked(index)"
           @mouseover="dateContinued(index)"
           @mouseup="mouseReleased"
