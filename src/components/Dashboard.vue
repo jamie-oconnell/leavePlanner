@@ -65,6 +65,7 @@
               <MonthDays
                 :currentYear="currentYear"
                 :selectedMonth="selectedMonth"
+                :userid="person.id"
               />
             </td>
           </tr>
@@ -91,7 +92,8 @@ import {
   format,
   getYear,
   addDays,
-  getMonth
+  getMonth,
+  isSameMonth
 } from "date-fns";
 export default {
   data() {
@@ -104,6 +106,7 @@ export default {
     };
   },
   created() {
+    console.log(this.selectedMonth);
     this.updateTableHeadings();
     this.getPublicHolidays();
     db.collection("staff")
@@ -125,13 +128,13 @@ export default {
       return format(new Date(this.currentYear, this.selectedMonth), "MMMM");
     },
     changeMonth(value) {
-        this.selectedMonth += value;
+      this.selectedMonth += value;
       if (this.selectedMonth < 0) {
         this.selectedMonth = 11;
       }
       if (this.selectedMonth > 11) {
         this.selectedMonth = 0;
-      } 
+      }
       this.updateTableHeadings();
       this.getLeaveData();
       this.getPublicHolidays();
@@ -140,7 +143,6 @@ export default {
       // Create day headings e.g sat, sun ,mon
       this.headingData = [];
       const days = [];
-
       const monthStartDate = startOfMonth(
         new Date(this.currentYear, this.selectedMonth)
       );
@@ -158,19 +160,31 @@ export default {
         .get()
         .then(querySnapshot => {
           querySnapshot.forEach(doc => {
+            const startDate = format(doc.data().startDate, "D") - 1;
+            const endDate = format(doc.data().endDate, "D") - 1;
+            const userId = doc.data().userId
             const data = {
+              userId: doc.data().userId,
               startDate: doc.data().startDate,
               endDate: doc.data().endDate,
               duration: doc.data().duration,
               id: doc.id
             };
             console.log(data);
+            for (let i = startDate; i < endDate + 1; i++) {
+              if (
+                isSameMonth(doc.data().startDate, format(new Date(this.currentYear, this.selectedMonth), "D" -1))
+              ) {
+                Vue.set(this.$store.state.tableData[i], "holidays", userId);
+              }
+            }
           });
         });
+      console.log(this.$store.state.tableData);
     },
     getPublicHolidays() {
       db.collection("publicHolidays")
-      .where("month", "==", this.selectedMonth)
+        .where("month", "==", this.selectedMonth)
         .get()
         .then(querySnapshot => {
           querySnapshot.forEach(doc => {
@@ -183,7 +197,6 @@ export default {
             };
             console.log(data);
             Vue.set(this.$store.state.tableData[day], "publicHoliday", true);
-            this.$store.state.publicHolidays.push(data);
           });
         });
     }
@@ -201,43 +214,36 @@ export default {
 .table th {
   border: none !important;
 }
-
 td {
   font-size: 12px;
   padding: 0;
   overflow: hidden;
 }
-
 th.person {
   font-size: 14px;
   width: 200px;
   font-weight: 500;
   padding-bottom: 15px;
 }
-
 .staffTitle {
   color: #747478;
 }
-
 .table .staffName {
   font-size: 14px;
   white-space: nowrap;
   overflow: hidden;
 }
-
 .day-heading {
   width: 30px !important;
   min-width: 30px !important;
   max-width: 30px !important;
   text-align: center;
 }
-
 .monthHeading {
   display: flex;
   justify-content: center;
   padding-bottom: 10px;
 }
-
 #selectedMonth {
   font-size: 18px;
 }

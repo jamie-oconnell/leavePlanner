@@ -10,6 +10,7 @@ export const store = new Vuex.Store({
         leaveEndDate: new Date(),
         mouseCurrentlyDown : false,
         publicHolidays: [],
-        tableData: []
+        tableData: [],
+        selectedDates : []
     }
 })

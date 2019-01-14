@@ -1,9 +1,11 @@
 <template>
   <table>
     <tbody>
-      <tr>
+      <tr @mouseleave="mouseExit">
         <td
-          v-bind:class="{'has-background-primary has-text-white' : selectedDates.includes(index), 'has-background-grey-lighter' : tableData[index].publicHoliday}"
+          v-bind:class="{
+            'has-background-primary has-text-white' : selectedDates.includes(index), 
+            'has-background-grey-lighter' : tableData[index].publicHoliday}"
           @mousedown="dateClicked(index)"
           @mouseover="dateContinued(index)"
           @mouseup="mouseReleased"
@@ -29,13 +31,11 @@ import {
   getYear
 } from "date-fns";
 import db from "@/firebaseInit";
-import {mapState} from 'vuex'
+import { mapState } from "vuex";
 export default {
   data() {
     return {
-      selectedDate: false,
-      selectedDates: [],
-      selectedDateIndex: null
+      selectedDates: []
     };
   },
   methods: {
@@ -66,12 +66,10 @@ export default {
             }
             this.selectedDates = temp;
           }
-
           if (itemIndex == this.selectedDates[this.selectedDates.length - 2]) {
             this.selectedDates.pop();
             this.selectedDates.pop();
           }
-
           this.selectedDates.push(itemIndex);
         }
       }
@@ -91,11 +89,18 @@ export default {
         new Date(this.currentYear, this.selectedMonth, Math.max(...dates)),
         "YYYY-MM-DD"
       );
-      this.$store.state.leaveModalActive = true;
+      if (this.selectedDates.length > 0) {
+        this.$store.state.leaveModalActive = true;
+      }
       this.selectedDates = [];
     },
+    mouseExit() {
+      this.selectedDates = [];
+      this.$store.state.mouseCurrentlyDown = false;
+    },
     updateTable() {
-      this.$store.state.tableData = []
+      console.log(this.userid);
+      this.$store.state.tableData = [];
       const days = [];
       const monthStartDate = startOfMonth(
         new Date(this.currentYear, this.selectedMonth)
@@ -105,23 +110,28 @@ export default {
       );
       const monthDays = eachDay(monthStartDate, monthEndDate);
       monthDays.forEach(function(day) {
-        days.push({number: format(`${day}`, "D")});
+        days.push({ number: format(`${day}`, "D") });
       });
       this.$store.state.tableData.push(...days);
-    },
-    
-  },
-  created() {
-    this.updateTable()
-  },
-  watch: {
-    'selectedMonth'(){
-      this.updateTable()
     }
   },
-  computed: 
-    mapState(['tableData']),
-  props: ["currentYear", "selectedMonth"]
+  created() {
+    this.updateTable();
+  },
+  watch: {
+    selectedMonth() {
+      this.updateTable();
+    }
+  },
+  computed: {
+    ...mapState(["tableData"]),
+    isUserId(num) {
+      if (this.tableData[index].holidays == userid) {
+        return true;
+      }
+    }
+  },
+  props: ["currentYear", "selectedMonth", "userid"]
 };
 </script>
 
@@ -129,7 +139,6 @@ export default {
 #monthDays div table tbody td {
   width: 30px !important;
 }
-
 .day {
   width: 30px !important;
   min-width: 30px !important;
@@ -146,10 +155,8 @@ export default {
   user-select: none; /* Non-prefixed version, currently
                                   supported by Chrome and Opera */
 }
-
 .day:hover {
   cursor: pointer;
   background: rgba(150, 150, 150, 0.1);
 }
 </style>
-

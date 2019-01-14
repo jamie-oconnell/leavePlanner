@@ -2,7 +2,7 @@
   <b-modal :active.sync="currentModalState">
     <div class="box">
       <h2 class="title">Book Time Off</h2>
-      <form action="">
+      <form action="submitLeave">
         <div class="field">
           <label class="label">Type</label>
           <div class="select">
@@ -61,7 +61,7 @@
           class="control"
           style="margin-top: 3rem;"
         >
-          <button class="button is-primary">Submit Request</button>
+          <button @click.prevent type="submit" class="button is-primary">Submit Request</button>
         </div>
       </form>
     </div>
